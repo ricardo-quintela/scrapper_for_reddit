@@ -80,14 +80,14 @@ def authenticate(username: str, password: str, app_id: str, secret: str) -> str:
 
 
 
-def make_request(post_id: str, access_token: str) -> dict:
+def make_request(post_id: str, access_token: str) -> list:
     """Makes a request to the given url
 
     Args:
         post_id (str): the id of the post to get the comments from
 
     Returns:
-        dict: the HTTP response
+        list: the HTTP response encoded in json
     """
 
     headers = {

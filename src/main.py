@@ -6,8 +6,8 @@
 from sys import argv
 import getpass
 
-from settings import APP_ID, SECRET
-from utils import authenticate, make_request, save_request_data, extract_id
+from settings import APP_ID, SECRET, LOG_PATH
+from utils import authenticate, make_request, save_request_data, extract_id, save_comments_md, extract_bodies, write_log
 
 
 
@@ -49,9 +49,18 @@ def main(args):
 
     save_request_data(response, f"{post_id}.json")
 
+    # extract the comments form the response
+    data = extract_bodies(response)
+
+    if data is None:
+        return
+
+    # save the comments to md
+    save_comments_md(data, f"{post_id}.md")
+
+    # success
+    write_log(f"Data saved as {post_id}.md", LOG_PATH)
+
 
 if __name__ == "__main__":
     main(argv)
-
-
-# https://www.reddit.com/r/stories/comments/101rveo/bedtime_stories_for_grownupskids/
