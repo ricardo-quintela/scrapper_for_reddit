@@ -6,8 +6,8 @@
 from sys import argv
 import getpass
 
-from settings import LOG_PATH, APP_ID, SECRET
-from utils import write_log, authenticate
+from settings import APP_ID, SECRET
+from utils import authenticate, make_request, save_request_data, extract_id
 
 
 
@@ -34,10 +34,20 @@ def main(args):
     password = getpass.getpass(f"Password for username {username}: ")
     url = args[2]
 
+    # extract the post id from the url
+    post_id = extract_id(url)
 
     access_token = authenticate(username, password, APP_ID, SECRET)
 
-    print(access_token)
+    if access_token is None:
+        return
+
+    response = make_request(post_id, access_token)
+
+    if response is None:
+        return
+
+    save_request_data(response, f"{post_id}.json")
 
 
 if __name__ == "__main__":
