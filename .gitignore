@@ -23,5 +23,8 @@ dist/
 *.html
 *.json
 
+# posts
+src/*.md
+
 # creds
 creds.txt
