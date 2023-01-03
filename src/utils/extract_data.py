@@ -83,15 +83,20 @@ def extract_bodies(post_data: list) -> tuple:
     # list to store the comments
     bodies = list()
 
-    for child in comments:
+    for i, child in enumerate(comments):
 
         # wrong format -> kind not found
         if "kind" not in child:
             write_log("Error: type of data is not comment", LOG_PATH)
             continue
 
+        # is not comment -> kind is more (ignore)
+        if child["kind"] == "more":
+            continue
+
         # is not comment -> kind is not t1 (comment)
         if child["kind"] != "t1":
+            print(i)
             write_log("Error: type of data is not comment (t1 not found)", LOG_PATH)
             continue
 
@@ -121,4 +126,9 @@ def save_comments_md(data: tuple, path: str):
         savefile.write(f"# {data[0]}\n")
 
         for index, comment in enumerate(data[1]):
+            if comment == "[removed]":
+                continue
+            if comment == "[deleted]":
+                continue
+
             savefile.write(f"# Comment {index}\n{comment}\n\n---\n")
