@@ -21,6 +21,7 @@ dist/
 
 # http responses
 *.html
+*.json
 
 # creds
 creds.txt
