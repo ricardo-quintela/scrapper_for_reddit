@@ -1,0 +1,20 @@
+# venv
+venv/
+
+# python cache files
+__pycache__/
+
+# obisidan notes
+.obsidian/
+
+# scripts
+activate.sh
+
+# log
+log.txt
+
+# build
+*.spec
+*.exe
+build/
+dist/
