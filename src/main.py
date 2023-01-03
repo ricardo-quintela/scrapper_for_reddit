@@ -4,30 +4,40 @@
     03/01/2022
 """
 from sys import argv
+import getpass
 
-from settings import LOG_PATH
-from utils import write_log, make_request, save_request_data
+from settings import LOG_PATH, APP_ID, SECRET
+from utils import write_log, authenticate
+
 
 
 def main(args):
     """main function of the code where all the others are called
     and the user interation is handeled
     """
+
+    # username
+    # url
+
     # not exnough args
     if len(args) == 1:
-        write_log("Did not recieve enough arguments!", LOG_PATH)
+        print("Did not recieve enough arguments!")
         return
 
     # too many args
-    elif len(args) > 2:
-        write_log("To many arguments!", LOG_PATH)
+    elif len(args) > 3:
+        print("To many arguments!")
         return
 
-    # make pointer to url in args
-    url = args[1]
+    # separate the username and url and get the pasword
+    username = args[1]
+    password = getpass.getpass(f"Password for username {username}: ")
+    url = args[2]
 
-    response = make_request(url)
-    save_request_data(response)
+
+    access_token = authenticate(username, password, APP_ID, SECRET)
+
+    print(access_token)
 
 
 if __name__ == "__main__":

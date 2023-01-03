@@ -21,3 +21,6 @@ dist/
 
 # http responses
 *.html
+
+# creds
+creds.txt
