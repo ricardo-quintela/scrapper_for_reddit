@@ -19,14 +19,9 @@ def main(args):
     # username
     # url
 
-    # not exnough args
-    if len(args) == 1:
-        print("Did not recieve enough arguments!")
-        return
-
-    # too many args
-    elif len(args) > 3:
-        print("To many arguments!")
+    # wrong args
+    if len(args) != 3:
+        print("Usage: scrapper {username} {post_url}")
         return
 
     # separate the username and url and get the pasword
