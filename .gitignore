@@ -28,9 +28,14 @@ dist/
 
 # audio
 *.mp3
+*.wav
+*.m4a
 
 # posts
 src/*.md
+
+# speech recognition model
+model/
 
 # creds
 creds.txt

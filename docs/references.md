@@ -13,5 +13,27 @@
 	- X-Ratelimit-Remaining: Approximate number of requests left to use
 	- X-Ratelimit-Reset: Approximate number of seconds to end of period
 
+# Moviepy
 
+## Links
 
+- [Documentation](https://zulko.github.io/moviepy/)
+- [GitHub](https://github.com/Zulko/moviepy)
+- [PyPI](https://pypi.org/project/moviepy/)
+
+- [Useful Video](https://www.youtube.com/watch?v=BBFub0zErFA&t=255s&ab_channel=PatrickLoeber)
+
+# Vosk
+
+## Links
+
+- [Website](https://alphacephei.com/vosk/)
+- [GitHub](https://github.com/alphacep/vosk-api)
+- [PyPI](https://pypi.org/project/vosk/)
+- [Useful article](https://towardsdatascience.com/speech-recognition-with-timestamps-934ede4234b2)
+
+## Model
+
+Name: vosk-model-en-us-0.22
+
+- [Model](https://alphacephei.com/vosk/models)
