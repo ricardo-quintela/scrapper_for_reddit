@@ -7,7 +7,7 @@ from sys import argv
 import getpass
 
 from settings import APP_ID, SECRET, LOG_PATH
-from utils import authenticate, make_request, save_request_data, extract_id, save_comments_md, extract_bodies, write_log
+from utils import authenticate, make_request, save_request_data, extract_id, save_comments_md, extract_bodies, write_log, analyze_data
 
 
 
@@ -19,14 +19,9 @@ def main(args):
     # username
     # url
 
-    # not exnough args
-    if len(args) == 1:
-        print("Did not recieve enough arguments!")
-        return
-
-    # too many args
-    elif len(args) > 3:
-        print("To many arguments!")
+    # wrong args
+    if len(args) != 3:
+        print("Usage: scrapper {username} {post_url}")
         return
 
     # separate the username and url and get the pasword
@@ -54,6 +49,8 @@ def main(args):
 
     if data is None:
         return
+
+    analyze_data(data[1])
 
     # save the comments to md
     save_comments_md(data, f"{post_id}.md")
