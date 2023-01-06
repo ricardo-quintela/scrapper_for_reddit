@@ -30,3 +30,4 @@
 - [Website](https://alphacephei.com/vosk/)
 - [GitHub](https://github.com/alphacep/vosk-api)
 - [PyPI](https://pypi.org/project/vosk/)
+- [Useful article](https://towardsdatascience.com/speech-recognition-with-timestamps-934ede4234b2)
