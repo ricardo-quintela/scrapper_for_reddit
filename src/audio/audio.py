@@ -2,9 +2,9 @@
 """
 
 import wave
-from json import dumps
+from json import dumps, loads
 
-from vosk import Model, KaldiRecognizer
+from vosk import Model, KaldiRecognizer, SetLogLevel
 
 from utils import write_log
 from settings import LOG_PATH, MODEL_PATH
@@ -56,11 +56,55 @@ def import_audio_track(path: str) -> wave.Wave_read:
     return audio_track
 
 
-def analyze_audio(audio_track: wave.Wave_read, script: str):
+def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
+    """Returns the script line timestamps from the audio track
 
-    model = Model(MODEL_PATH)
+    Args:
+        audio_track (Wave_read): the wav mono audio track
+        script (list): the list of lines on the script
+
+    Returns:
+        list: the timestamps (timestamp, duration)
+    """
+    
+    SetLogLevel(-1)
+
+    try:
+        model = Model(MODEL_PATH)
+    except Exception:
+        write_log(f"No model found in {MODEL_PATH}", LOG_PATH)
+        return
 
     sentence_list_str = dumps(script)
 
     rec = KaldiRecognizer(model, audio_track.getframerate(), sentence_list_str)
+    # enable word timestamp extraction
+    rec.SetWords(True)
     rec.SetGrammar(sentence_list_str)
+
+    results = list()
+
+    while data := audio_track.readframes(4000):
+
+        if rec.AcceptWaveform(data):
+            results += loads(rec.Result())["result"]
+            rec.SetGrammar(sentence_list_str)
+
+    results += loads(rec.FinalResult())["result"]
+
+    audio_track.close()
+
+    timestamps = list()
+
+    index = 0
+    for sentence in script:
+        start = results[index]["start"]
+
+        index += len(sentence.split()) - 2
+        
+        duration = results[index]["end"] - start
+
+        timestamps.append((start, duration))
+
+
+    return timestamps

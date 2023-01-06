@@ -74,7 +74,7 @@ def make_caption_clip(text: str, font: ImageFont.FreeTypeFont, timestamp: tuple)
     Args:
         text (str): the text to write on the image
         font (FreeTypeFont): the font to write the image
-        timestamp (list): the entry time ((minute, second), duration)
+        timestamp (list): the entry time (timestamp, duration)
 
     Returns:
         ImageClip: the generated clip
@@ -93,7 +93,7 @@ def video_captions(captions: list, timestamps: list):
 
     Args:
         captions (list): the list of text captions to add to the video
-        timestamps (list): the timestamp of each caption ((minute, second), duration)
+        timestamps (list): the timestamp of each caption (timestamp, duration)
     """
 
     # make a list with the capiton clips
