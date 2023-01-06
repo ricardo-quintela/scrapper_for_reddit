@@ -32,5 +32,8 @@ dist/
 # posts
 src/*.md
 
+# speech recognition model
+model/
+
 # creds
 creds.txt
