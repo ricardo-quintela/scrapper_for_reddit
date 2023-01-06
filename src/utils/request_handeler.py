@@ -3,7 +3,7 @@
 import requests
 from requests.auth import HTTPBasicAuth
 from json import dumps
-from settings import LOG_PATH
+from settings import LOG_PATH, APP_NAME
 from . import write_log
 
 
@@ -31,7 +31,7 @@ def authenticate(username: str, password: str, app_id: str, secret: str) -> str:
     }
 
     headers = {
-        "User-agent": 'scrapper 0.1',
+        "User-agent": APP_NAME,
     }
 
     try:
@@ -92,7 +92,7 @@ def make_request(post_id: str, access_token: str) -> list:
 
     headers = {
         "Authorization": f"Bearer {access_token}",
-        "User-agent": 'scrapper 0.1',
+        "User-agent": APP_NAME,
     }
 
     url = f"http://oauth.reddit.com/comments/{post_id}?sort=old&threded=false"
@@ -123,7 +123,7 @@ def make_request(post_id: str, access_token: str) -> list:
     # couldn't make the request
     if response.status_code != 200:
         write_log(f"An error has occured - status code: {response.status_code}", LOG_PATH)
-        return None
+        return
 
     # try to decode
     try:
@@ -132,6 +132,60 @@ def make_request(post_id: str, access_token: str) -> list:
     except requests.exceptions.JSONDecodeError as json_error:
         write_log(f"Could not decode response into a JSON: {json_error}", LOG_PATH)
         return
+
+
+def request_more_data(post_id: str, access_token: str, children: list):
+
+    # generates a string of the children id of the post
+    children_comments = children[0]
+    for child in children[1:]:
+        children_comments += f",{child}"
+
+    url = f"http://oauth.reddit.com/api/morechildren?link_id=${post_id}&children=${children_comments}&api_type=json"
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "User-agent": APP_NAME,
+    }
+
+    try:
+        write_log(f"Connecting to '{url}'", LOG_PATH)
+
+        # make the request to the url
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=5
+        )
+
+    # an http error occured
+    except requests.exceptions.HTTPError as http_error:
+        write_log(f"An error has occured: {http_error}", LOG_PATH)
+        return
+
+    # a connection error occured
+    except requests.exceptions.ConnectionError as conn_error:
+        write_log(f"Unable to connect to '{url}': {conn_error}", LOG_PATH)
+        return
+
+    # connection successfull
+    write_log(f"Connected to '{url}' successfully", LOG_PATH)
+
+    # couldn't make the request
+    if response.status_code != 200:
+        write_log(f"An error has occured - status code: {response.status_code}", LOG_PATH)
+        return
+
+    # try to decode
+    try:
+        write_log("Retrieved more comments successfully", LOG_PATH)
+        return response.json()
+
+    except requests.exceptions.JSONDecodeError as json_error:
+        write_log(f"Could not decode response into a JSON: {json_error}", LOG_PATH)
+        return
+
+
 
 
 def save_request_data(response: dict, filename: str = "response.json"):
