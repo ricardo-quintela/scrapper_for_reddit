@@ -108,9 +108,53 @@ def extract_bodies(post_data: list) -> tuple:
             write_log("Error: comment body does not exist", LOG_PATH)
             continue
 
+
+        # ignore empty comments
+        if child["data"]["body"] == "[removed]":
+            continue
+        if child["data"]["body"] == "[deleted]":
+            continue
+
+        # add the comment to the list
         bodies.append(child["data"]["body"])
 
     return title, bodies
+
+
+def analyze_data(comments: list):
+    """Removes comments that have a size bellow average on the given post
+
+    Args:
+        comments (list): the list of comments obtained from the post response
+    """
+
+    # allocate memory
+    lengths = [0 for i in comments]
+
+    # to save the total number of characters
+    total = 0
+
+    # calculate the average characters
+    comment_length = 0
+    for i, comment in enumerate(comments):
+        comment_length = len(comment)
+
+        total += comment_length
+        lengths[i] = comment_length
+
+    average_size = total / len(comments)
+    min_size = min(lengths)
+
+    # removing comments bellow average
+    index = 0
+    while index < len(lengths):
+        if lengths[index] >= average_size + min_size:
+            index += 1
+            continue
+
+        lengths.pop(index)
+        comments.pop(index)
+
 
 
 def save_comments_md(data: tuple, path: str):
@@ -126,9 +170,5 @@ def save_comments_md(data: tuple, path: str):
         savefile.write(f"# {data[0]}\n")
 
         for index, comment in enumerate(data[1]):
-            if comment == "[removed]":
-                continue
-            if comment == "[deleted]":
-                continue
-
+            
             savefile.write(f"# Comment {index}\n{comment}\n\n---\n")
