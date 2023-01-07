@@ -6,9 +6,9 @@ from json import dumps, loads
 
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
-from utils import write_log
-from settings import LOG_PATH, MODEL_PATH, FADE_TO_BLACK_TIME
 from moviepy.editor import AudioFileClip
+from utils import write_log, wrap_data
+from settings import LOG_PATH, MODEL_PATH, FADE_TO_BLACK_TIME
 
 
 def import_audio_track(path: str) -> wave.Wave_read:
@@ -57,12 +57,13 @@ def import_audio_track(path: str) -> wave.Wave_read:
     return audio_track
 
 
-def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
+def get_timestamps(audio_track: wave.Wave_read, script: list, save_lines: bool) -> list:
     """Returns the script line timestamps from the audio track
 
     Args:
         audio_track (Wave_read): the wav mono audio track
         script (list): the list of lines on the script
+        save_lines (bool): whether to save the speech recognition lines or not
 
     Returns:
         list: the timestamps (timestamp, duration)
@@ -116,6 +117,20 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
         f"Generating audio track timestamps: {total_of_frames}/{total_of_frames}",
         LOG_PATH
     )
+
+    # save the lines gathered to json
+    if save_lines:
+        model_string = ""
+        for word in results:
+            w_text = word["word"]
+            model_string += f"{w_text} "
+        model_lines = wrap_data(model_string)
+
+        with open("speech_recognition_lines.md", "w", encoding="utf-8") as speech_file:
+            for line in model_lines:
+                speech_file.write(f"{line}\n")
+
+        write_log("Saved speech in speech_recognition_lines.md", LOG_PATH)
 
 
     # close the audio file

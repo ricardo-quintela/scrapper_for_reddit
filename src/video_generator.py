@@ -5,7 +5,7 @@ from video import import_video, video_captions, generate_video
 from audio import import_audio_clip, import_audio_track, get_timestamps,\
     create_audio_subclips, calculate_total_audio_time
 
-def generate_video_file(video_path: str, audio_path: str, script_path: str, filename: str):
+def generate_video_file(video_path: str, audio_path: str, script_path: str, filename: str, save_audio_lines: bool):
     """Generates a video from a background clip, an audio clip and a script file
 
     Args:
@@ -13,6 +13,7 @@ def generate_video_file(video_path: str, audio_path: str, script_path: str, file
         audio_path (str): the audio file path
         script_path (str): the script file path
         filename (str): the name of the video to be generated
+        save_audio_lines (str): whether to save the speech recognition lines or not
     """
 
     script = import_data(script_path)
@@ -31,7 +32,7 @@ def generate_video_file(video_path: str, audio_path: str, script_path: str, file
         video_clip.close()
         return
 
-    timestamps = get_timestamps(audio_track, script)
+    timestamps = get_timestamps(audio_track, script, save_audio_lines)
     if timestamps is None:
         video_clip.close()
         audio_track.close()

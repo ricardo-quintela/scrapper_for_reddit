@@ -122,11 +122,11 @@ def extract_bodies(post_data: list) -> tuple:
     return title, bodies
 
 
-def wrap_data(line: list) -> list:
+def wrap_data(line: str) -> list:
     """Wraps each comment so that the lines can fit on the screen
 
     Args:
-        line (list): a line of the script
+        line (str): a line of the script
 
     Returns:
         list: a list of lines

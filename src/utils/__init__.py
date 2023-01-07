@@ -5,3 +5,4 @@ from .request_handeler import make_request, save_request_data, authenticate, req
 from .regular_expr import extract_id
 from .extract_data import extract_bodies, save_comments_md, analyze_data, wrap_data
 from .import_data import import_data
+from .progress_bar import VideoProgressBar

@@ -20,6 +20,11 @@ def main():
     # url
 
     arg_parser = argparse.ArgumentParser(description="Create a video easily")
+    arg_parser.add_argument(
+        "-g", "--genaudio",
+        help="save the recognized lines to a file",
+        action="store_true",
+    )
 
     # arguments for scrapping
     scrape_group = arg_parser.add_argument_group()
@@ -104,8 +109,9 @@ def main():
         generate_video_file(
             args.clip,
             args.audio,
-            args.script,
-            args.name if args.name else "video.mp4"
+            args.text,
+            args.name if args.name else "video.mp4",
+            args.genaudio if args.genaudio else None
         )
 
 

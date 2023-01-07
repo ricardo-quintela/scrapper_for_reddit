@@ -1,13 +1,14 @@
 """Tools to edit the video automatically
 """
 
+import re
 from PIL import ImageFont
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, CompositeAudioClip
 from moviepy.video.fx.fadeout import fadeout
 
-from utils import write_log
+from utils import write_log, VideoProgressBar
 from image import make_caption_image
-from settings import LOG_PATH, VIDEO_FONT, FONT_SIZE, FADE_TO_BLACK_TIME
+from settings import LOG_PATH, VIDEO_FONT, FONT_SIZE, FADE_TO_BLACK_TIME, TITLE_BACKGROUND, TITLE_DURATION, CROSS_FADE_IN_OUT
 
 def import_video(path: str) -> VideoFileClip:
     """Opens a video file for editing and removes its audio\n
@@ -43,6 +44,17 @@ def make_caption_clip(text: str, font: ImageFont.FreeTypeFont, timestamp: tuple)
     Returns:
         ImageClip: the generated clip
     """
+
+    # if the caption is a title
+    if re.search(r"Story [0-9]+", text):
+        clip = ImageClip(make_caption_image(text, font, caption_background=TITLE_BACKGROUND))
+
+        clip = clip.set_start(timestamp[0])
+        clip = clip.set_duration(timestamp[1] + TITLE_DURATION)
+        clip = clip.set_position(("center", 0.3), relative=True)
+        clip = clip.crossfadein(CROSS_FADE_IN_OUT).crossfadeout(CROSS_FADE_IN_OUT)
+        return clip
+
     clip = ImageClip(make_caption_image(text, font))
 
     clip = clip.set_start(timestamp[0])
@@ -66,10 +78,12 @@ def video_captions(captions: list, timestamps: list):
     font = ImageFont.truetype(VIDEO_FONT, FONT_SIZE)
 
     for i, caption in enumerate(captions):
+        write_log(f"Generating captions: {i+1}/{len(captions)}", LOG_PATH)
         text_clip = make_caption_clip(caption, font, timestamps[i])
 
         caption_clips.append(text_clip)
 
+    write_log("Captions generated Successfully", LOG_PATH)
     return caption_clips
 
 
@@ -96,9 +110,11 @@ def generate_video(background_clip: VideoFileClip, caption_clips: list, audio_cl
 
     # fade to black
     video = fadeout(video, FADE_TO_BLACK_TIME, (0,0,0))
-    
+
+    write_log("Rendering video...", LOG_PATH)
+
     # write the video file
-    video.write_videofile(file_path)
+    video.write_videofile(file_path, logger=VideoProgressBar())
 
     # release all of the used resources
     background_clip.close()
@@ -109,3 +125,5 @@ def generate_video(background_clip: VideoFileClip, caption_clips: list, audio_cl
 
     audio.close()
     video.close()
+
+    write_log(f"Video generated successfully at {file_path}", LOG_PATH)
