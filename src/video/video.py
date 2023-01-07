@@ -3,10 +3,11 @@
 
 from PIL import ImageFont
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, CompositeAudioClip
+from moviepy.video.fx.fadeout import fadeout
 
 from utils import write_log
 from image import make_caption_image
-from settings import LOG_PATH, VIDEO_FONT, FONT_SIZE
+from settings import LOG_PATH, VIDEO_FONT, FONT_SIZE, FADE_TO_BLACK_TIME
 
 def import_video(path: str) -> VideoFileClip:
     """Opens a video file for editing and removes its audio\n
@@ -43,8 +44,6 @@ def make_caption_clip(text: str, font: ImageFont.FreeTypeFont, timestamp: tuple)
         ImageClip: the generated clip
     """
     clip = ImageClip(make_caption_image(text, font))
-
-    print(timestamp)
 
     clip = clip.set_start(timestamp[0])
     clip = clip.set_duration(timestamp[1])
@@ -85,8 +84,6 @@ def generate_video(background_clip: VideoFileClip, caption_clips: list, audio_cl
         file_path (str): the path where to save the file
     """
 
-    print(len(audio_clips))
-
     audio = CompositeAudioClip(audio_clips)
 
     video = CompositeVideoClip([background_clip] + caption_clips)
@@ -97,6 +94,9 @@ def generate_video(background_clip: VideoFileClip, caption_clips: list, audio_cl
     # crop the video according to the given duration
     video = video.set_end(video_duration)
 
+    # fade to black
+    video = fadeout(video, FADE_TO_BLACK_TIME, (0,0,0))
+    
     # write the video file
     video.write_videofile(file_path)
 

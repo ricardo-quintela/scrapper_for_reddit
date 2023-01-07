@@ -25,7 +25,7 @@ def make_caption_image(text: str, font: ImageFont.FreeTypeFont) -> np.ndarray:
     image_size = width, height
 
     # create a blank canvas to draw the text later
-    image = Image.new("RGBA", image_size, color=(255,255,255,255))
+    image = Image.new("RGBA", image_size, color=(255,255,255,0))
 
     # create a draw interface on the created image
     draw_interface = ImageDraw.Draw(image)

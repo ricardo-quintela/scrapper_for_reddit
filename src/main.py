@@ -7,7 +7,7 @@ from sys import argv
 import getpass
 
 from settings import APP_ID, SECRET, LOG_PATH
-from utils import authenticate, make_request, save_request_data, extract_id, save_comments_md, extract_bodies, write_log, analyze_data
+from utils import authenticate, make_request, save_request_data, extract_id, save_comments_md, extract_bodies, write_log, analyze_data, create_log_file
 
 
 
@@ -28,6 +28,8 @@ def main(args):
     username = args[1]
     password = getpass.getpass(f"Password for username {username}: ")
     url = args[2]
+
+    create_log_file(LOG_PATH)
 
     # extract the post id from the url
     post_id = extract_id(url)

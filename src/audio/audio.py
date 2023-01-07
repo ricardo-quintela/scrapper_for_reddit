@@ -79,6 +79,7 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
         write_log(f"No model found in {MODEL_PATH}", LOG_PATH)
         return
 
+
     # create a string of the sentences that can be used in the audio
     sentence_list_str = dumps(script)
 
@@ -90,6 +91,10 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
 
     results = list()
 
+    # get the number of frames to print the progress
+    total_of_frames = audio_track.getnframes()
+
+    progress = 0
     # loop through all the audio
     while data := audio_track.readframes(4000):
 
@@ -98,8 +103,20 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
             results += loads(rec.Result())["result"]
             rec.SetGrammar(sentence_list_str)
 
+        else:
+            progress += 4000
+            write_log(
+                f"Generating audio track timestamps: {progress}/{total_of_frames}",
+                LOG_PATH
+            )
+
     # add the final sentence
     results += loads(rec.FinalResult())["result"]
+    write_log(
+        f"Generating audio track timestamps: {total_of_frames}/{total_of_frames}",
+        LOG_PATH
+    )
+
 
     # close the audio file
     audio_track.close()
@@ -114,12 +131,15 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
         # start of the line
         start = results[index]["start"]
 
-        index += len(sentence.split()) - 2
+        index += len(sentence.split()) - 1
 
         # duration of the line
         duration = results[index]["end"] - start
 
         timestamps.append((start, duration))
+
+        index += 1
+
 
     write_log("Successfully generated timestamps for the audio track", LOG_PATH)
     return timestamps

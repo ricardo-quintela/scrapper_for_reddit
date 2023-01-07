@@ -14,3 +14,20 @@ def write_log(string: str, path: str):
         logfile.write(f"[{str(datetime.now())}]: {string}\n")
 
     print(f"[{str(datetime.now())}]: {string}")
+
+
+def create_log_file(path: str):
+    """Creates an empty log file
+    or cleans it if it already exists
+
+    Args:
+        path (str): the path to the logfile
+    """
+
+    try:
+        with open(path, "w", encoding="utf-8"):
+            pass
+
+    except IOError:
+        print("ERROR: Log file could not be created.")
+        return
