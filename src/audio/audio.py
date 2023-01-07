@@ -7,7 +7,8 @@ from json import dumps, loads
 from vosk import Model, KaldiRecognizer, SetLogLevel
 
 from utils import write_log
-from settings import LOG_PATH, MODEL_PATH
+from settings import LOG_PATH, MODEL_PATH, FADE_TO_BLACK_TIME
+from moviepy.editor import AudioFileClip
 
 
 def import_audio_track(path: str) -> wave.Wave_read:
@@ -66,8 +67,11 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
     Returns:
         list: the timestamps (timestamp, duration)
     """
-    
-    SetLogLevel(-1)
+
+    write_log("Generating timestamps for the audio track", LOG_PATH)
+
+    # don't show log messages of the vosk library
+    SetLogLevel(-3)
 
     try:
         model = Model(MODEL_PATH)
@@ -75,8 +79,11 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
         write_log(f"No model found in {MODEL_PATH}", LOG_PATH)
         return
 
+
+    # create a string of the sentences that can be used in the audio
     sentence_list_str = dumps(script)
 
+    # create the speech recognizer instance
     rec = KaldiRecognizer(model, audio_track.getframerate(), sentence_list_str)
     # enable word timestamp extraction
     rec.SetWords(True)
@@ -84,27 +91,112 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
 
     results = list()
 
+    # get the number of frames to print the progress
+    total_of_frames = audio_track.getnframes()
+
+    progress = 0
+    # loop through all the audio
     while data := audio_track.readframes(4000):
 
+        # if a sentence has been successfully parsed -> add to results
         if rec.AcceptWaveform(data):
             results += loads(rec.Result())["result"]
             rec.SetGrammar(sentence_list_str)
 
-    results += loads(rec.FinalResult())["result"]
+        else:
+            progress += 4000
+            write_log(
+                f"Generating audio track timestamps: {progress}/{total_of_frames}",
+                LOG_PATH
+            )
 
+    # add the final sentence
+    results += loads(rec.FinalResult())["result"]
+    write_log(
+        f"Generating audio track timestamps: {total_of_frames}/{total_of_frames}",
+        LOG_PATH
+    )
+
+
+    # close the audio file
     audio_track.close()
 
+    # create a list of timestamps
     timestamps = list()
 
+     # add timestamps for all the lines
     index = 0
     for sentence in script:
+
+        # start of the line
         start = results[index]["start"]
 
-        index += len(sentence.split()) - 2
-        
+        index += len(sentence.split()) - 1
+
+        # duration of the line
         duration = results[index]["end"] - start
 
         timestamps.append((start, duration))
 
+        index += 1
 
+
+    write_log("Successfully generated timestamps for the audio track", LOG_PATH)
     return timestamps
+
+
+def import_audio_clip(path: str) -> list:
+    """Opens a audio file for editing\n
+    The pointer must be closed after usage
+
+    Args:
+        path (str): the path to the file
+
+    Returns:
+        AudioFileClip: the imported audio
+    """
+
+    try:
+        audio_clip = AudioFileClip(path)
+
+    except IOError:
+        write_log(f"Audio file at {path} could not be found", LOG_PATH)
+        return
+
+    return audio_clip
+
+
+def create_audio_subclips(audio_clip: AudioFileClip, timestamps: list) -> list:
+    """Generates subclips with the audio subtitles
+
+    Args:
+        audio_clip (AudioFileClip): the main audio track
+        timestamps (list): a list with the timestamps
+
+    Returns:
+        list: a list of audio subclips
+    """
+
+
+    subclips = list()
+
+    for timestamp in timestamps:
+        clip = audio_clip.subclip(t_start=timestamp[0], t_end=sum(timestamp))
+        clip = clip.set_start(timestamp[0])
+
+        subclips.append(clip)
+
+
+
+    return subclips
+
+def calculate_total_audio_time(timestamps: list) -> float:
+    """Calculates the total video time based on the audio timestamps
+
+    Args:
+        timestamps (list): the audio timestamp list
+
+    Returns:
+        float: the video duration in seconds
+    """
+    return sum(timestamps[-1]) + FADE_TO_BLACK_TIME
