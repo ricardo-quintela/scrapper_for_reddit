@@ -37,5 +37,8 @@ src/*.md
 # speech recognition model
 model/
 
+# video generation
+video_files/
+
 # creds
 creds.txt

@@ -84,21 +84,29 @@ def main():
 
     # do scraping
     if args.scrape:
-        if args.user and args.post:
-            create_log_file(LOG_PATH)
-            scrape_post(args.user, args.post)
+        if not (args.user and args.post):
+            arg_parser.print_usage()
+            print("You must provide a username and a post url to scrape")
+            return
+
+        create_log_file(LOG_PATH)
+        scrape_post(args.user, args.post)
 
     # do editing
     elif args.video:
-        if args.clip and args.audio and args.text:
-            create_log_file(LOG_PATH)
+        if not (args.clip and args.audio and args.text):
+            arg_parser.print_usage()
+            print("You must provide a video clip path, an audio clip path and a script text path to generate a video")
+            return
 
-            generate_video_file(
-                args.clip,
-                args.audio,
-                args.script,
-                args.name if args.name else "video.mp4"
-            )
+        create_log_file(LOG_PATH)
+
+        generate_video_file(
+            args.clip,
+            args.audio,
+            args.script,
+            args.name if args.name else "video.mp4"
+        )
 
 
 
