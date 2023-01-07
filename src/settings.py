@@ -17,3 +17,5 @@ MODEL_PATH = "model/vosk-model-en-us-0.22"
 APP_NAME = f"scrapper {VERSION}"
 
 FADE_TO_BLACK_TIME = 3
+
+WRAP_TEXT = 20

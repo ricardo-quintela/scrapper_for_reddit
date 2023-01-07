@@ -133,8 +133,17 @@ def get_timestamps(audio_track: wave.Wave_read, script: list) -> list:
 
         index += len(sentence.split()) - 1
 
-        # duration of the line
-        duration = results[index]["end"] - start
+        try:
+            # duration of the line
+            duration = results[index]["end"] - start
+
+        # while parsing the script doesnt match the audio
+        except IndexError:
+            write_log(
+                "ERROR: audio track doesn't match script\n Did you read the script properly?",
+                LOG_PATH
+            )
+            return
 
         timestamps.append((start, duration))
 
@@ -185,8 +194,6 @@ def create_audio_subclips(audio_clip: AudioFileClip, timestamps: list) -> list:
         clip = clip.set_start(timestamp[0])
 
         subclips.append(clip)
-
-
 
     return subclips
 

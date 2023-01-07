@@ -1,6 +1,7 @@
 """Extract data from the scrapped post
 """
-from settings import LOG_PATH
+from textwrap import TextWrapper
+from settings import LOG_PATH, WRAP_TEXT
 from . import write_log
 
 def extract_bodies(post_data: list) -> tuple:
@@ -121,7 +122,22 @@ def extract_bodies(post_data: list) -> tuple:
     return title, bodies
 
 
-def analyze_data(comments: list):
+def wrap_data(line: list) -> list:
+    """Wraps each comment so that the lines can fit on the screen
+
+    Args:
+        line (list): a line of the script
+
+    Returns:
+        list: a list of lines
+    """
+    # wrap words in the text and build a new list with smaller lines
+    wrapper = TextWrapper(width=WRAP_TEXT)
+
+    return wrapper.wrap(line)
+
+
+def analyze_data(comments: list) -> list:
     """Removes comments that have a size bellow average on the given post
 
     Args:
@@ -170,5 +186,4 @@ def save_comments_md(data: tuple, path: str):
         savefile.write(f"# {data[0]}\n")
 
         for index, comment in enumerate(data[1]):
-            
-            savefile.write(f"# Comment {index}\n{comment}\n\n---\n")
+            savefile.write(f"# Story {index}\n{comment}\n---\n")
