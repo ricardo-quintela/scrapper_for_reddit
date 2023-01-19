@@ -186,4 +186,4 @@ def save_comments_md(data: tuple, path: str):
         savefile.write(f"# {data[0]}\n")
 
         for index, comment in enumerate(data[1]):
-            savefile.write(f"# Story {index + 1}\n{comment}\n---\n")
+            savefile.write(f"# Story {index + 1}\n{comment}\n\n---\n")
